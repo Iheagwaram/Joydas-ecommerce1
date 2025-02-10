@@ -37,12 +37,9 @@ const Productpage = () => {
                                 />
                                 <h3 className="text-xl font-semibold">{product.title}</h3>
                                 <p className="text-gray-600">${product.price}</p>
-                                <div className='flex justify-center gap-3'>
-                                    <button className="mt-2 bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-700">
-                                        Add to Cart
-                                    </button>
+                                <div className='w-full flex justify-center gap-3'>
                                     <Link to={`/product/${product.id}`}>
-                                        <button className="mt-2 bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-700">
+                                        <button className="w-full mt-2 bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-700">
                                             View More
                                         </button>
                                     </Link>
