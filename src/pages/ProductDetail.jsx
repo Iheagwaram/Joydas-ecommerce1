@@ -58,7 +58,7 @@ const ProductDetail = () => {
   return (
     <div className="container mx-auto p-6">
       <div className="flex flex-col md:flex-row items-center">
-        {/* Image Section */}
+
         <div className="w-full md:w-1/2 flex justify-center mb-6 md:mb-0">
           <img
             src={product.image}
@@ -67,7 +67,7 @@ const ProductDetail = () => {
           />
         </div>
 
-        {/* Product Details Section */}
+
         <div className="w-full md:w-1/2 md:ml-8">
           <h1 className="text-3xl font-bold mb-4">{product.title}</h1>
           <p className="text-gray-600 text-lg mb-4">{product.description}</p>
