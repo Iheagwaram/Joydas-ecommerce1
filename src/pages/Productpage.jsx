@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { FaSearch } from "react-icons/fa"; // Import search icon
 
 const Productpage = () => {
   const [products, setProducts] = useState([]);
-  const [filterProducts, setFilterProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -14,42 +16,74 @@ const Productpage = () => {
         }
         return res.json();
       })
-      .then((data) => setProducts(data))
+      .then((data) => {
+        setProducts(data);
+        setFilteredProducts(data);
+      })
       .catch((error) => {
         console.error("Error fetching products:", error);
         setError(error.message);
       });
   }, []);
 
-  const filterByPrice = (price) => {
-    if(!price){
-        setProducts(filterProducts)
-    }
-    else{
-        const result = filterProducts.filter((p) => p.price > price);
-        setProducts(result);
-        return result;  
-    }
+  const handleSearchChange = (e) => {
+    const query = e.target.value.toLowerCase();
+    setSearchQuery(query);
+    setFilteredProducts(
+      products.filter((product) =>
+        product.title.toLowerCase().includes(query)
+      )
+    );
+  };
 
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    setFilteredProducts(
+      products.filter((product) =>
+        product.title.toLowerCase().includes(searchQuery)
+      )
+    );
+  };
+
+  const filterByPrice = (price) => {
+    if (!price) {
+      setFilteredProducts(products);
+    } else {
+      setFilteredProducts(products.filter((p) => p.price > price));
+    }
   };
 
   return (
     <div className="container mx-auto p-6">
-      <div className="flex justify-between px-10 ">
-        <h1 className="text-3xl font-bold mb-6 text-center">Products</h1>
-        <select
-          name=""
-          id=""
-          onChange={(e) => {
-            filterByPrice(Number(e.target.value));
-          }}
-          className="bg-gray-600 items-center text-gray-100 rounded-lg p-0.5 px-3 h-9"
+      <div className="flex justify-between px-10 items-center mb-6">
+        <h1 className="text-3xl font-bold">Products</h1>
+
+        {/* Search Bar with Icon */}
+        <form
+          onSubmit={handleSearchSubmit}
+          className="flex items-center bg-white border border-gray-400 rounded-md px-3 py-1 text-gray-700 w-64"
         >
-          <option value="">...Filter...</option>
-          <option value="">...All...</option>
-          <option value="50">50</option>
-          <option value="100">100</option>
-          <option value="200">200</option>
+          <input
+            type="text"
+            placeholder="Search products..."
+            value={searchQuery}
+            onChange={handleSearchChange}
+            className="flex-grow outline-none px-2 py-1 text-gray-700"
+          />
+          <button type="submit" className="bg-slate-800 text-white px-3 py-2 rounded">
+            <FaSearch className="text-white" />
+          </button>
+        </form>
+
+        {/* Filter Dropdown */}
+        <select
+          onChange={(e) => filterByPrice(Number(e.target.value))}
+          className="bg-gray-600 text-gray-100 rounded-lg p-0.5 px-3 h-9"
+        >
+          <option value="">Filter by Price...</option>
+          <option value="50">Above $50</option>
+          <option value="100">Above $100</option>
+          <option value="200">Above $200</option>
         </select>
       </div>
 
@@ -57,8 +91,8 @@ const Productpage = () => {
         <p className="text-center text-red-500">Error: {error}</p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {products.length > 0 ? (
-            products.map((product) => (
+          {filteredProducts.length > 0 ? (
+            filteredProducts.map((product) => (
               <div
                 key={product.id}
                 className="border p-4 rounded-lg text-center shadow-lg"
@@ -80,7 +114,7 @@ const Productpage = () => {
               </div>
             ))
           ) : (
-            <p className="text-center text-gray-500">Loading products...</p>
+            <p className="text-center text-gray-500">No products found.</p>
           )}
         </div>
       )}
