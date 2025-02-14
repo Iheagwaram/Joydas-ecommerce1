@@ -8,12 +8,19 @@ const ProductDetail = () => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
+    if (!id) return;
     fetch(`https://fakestoreapi.com/products/${id}`)
       .then((res) => res.json())
       .then((data) => {
         setProduct(data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error fetching product:", error);
+        setError("Failed to load product details.");
         setLoading(false);
       });
   }, [id]);
@@ -25,22 +32,31 @@ const ProductDetail = () => {
       </p>
     );
   }
+
+  if (error) {
+    return (
+      <p className="text-center text-red-500">
+        {error}
+      </p>
+    );
+  }
+
   const dispatch = useDispatch();
-  const FLUTTER_PUBLIC_KEY = import.meta.env.VITE_PUBLIC_KEY
+  const FLUTTER_PUBLIC_KEY = import.meta.env.VITE_PUBLIC_KEY;
   const config = {
     public_key: FLUTTER_PUBLIC_KEY,
     tx_ref: Date.now(),
-    amount: 100,
+    amount: product?.price || 0,
     currency: 'NGN',
     payment_options: 'card,mobilemoney,ussd',
     customer: {
       email: 'user@gmail.com',
       phone_number: '070**',
-      name: 'john doe',
+      name: 'John Doe',
     },
     customizations: {
-      title: 'My store',
-      description: 'Payment for items in cart',
+      title: 'My Store',
+      description: `Payment for ${product?.title || "items in cart"}`,
       logo: 'https://st2.depositphotos.com/4403291/7418/v/450/depositphotos_74189661-stock-illustration-online-shop-log.jpg',
     },
   };
@@ -50,9 +66,8 @@ const ProductDetail = () => {
     text: 'Order Now',
     callback: (response) => {
       console.log(response);
-      closePaymentModal();
     },
-    onClose: () => { },
+    onClose: () => {},
   };
 
   return (
@@ -61,21 +76,20 @@ const ProductDetail = () => {
 
         <div className="w-full md:w-1/2 flex justify-center mb-6 md:mb-0">
           <img
-            src={product.image}
-            alt={product.title}
+            src={product?.image || ''}
+            alt={product?.title || 'Product Image'}
             className="w-full max-w-sm object-contain"
           />
         </div>
 
-
         <div className="w-full md:w-1/2 md:ml-8">
-          <h1 className="text-3xl font-bold mb-4">{product.title}</h1>
-          <p className="text-gray-600 text-lg mb-4">{product.description}</p>
+          <h1 className="text-3xl font-bold mb-4">{product?.title || 'No Title Available'}</h1>
+          <p className="text-gray-600 text-lg mb-4">{product?.description || 'No description available.'}</p>
           <p className="text-xl font-semibold text-gray-800 mb-6">
-            ${product.price}
+            ${product?.price || 'N/A'}
           </p>
           <div className='flex gap-4'>
-            <button onClick={()=>{dispatch(addToCart(product))}} className="bg-yellow-500 text-white px-6 py-2 rounded hover:bg-yellow-700">Add to Cart</button>
+            <button onClick={() => product && dispatch(addToCart(product))} className="bg-yellow-500 text-white px-6 py-2 rounded hover:bg-yellow-700">Add to Cart</button>
             <FlutterWaveButton
               className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-500"
               {...fwConfig}
